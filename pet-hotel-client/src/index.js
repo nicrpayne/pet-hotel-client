@@ -1,39 +1,58 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-import { createStore, applyMiddleware } from 'redux';
+import App from './components/App/App.js';
+import { takeEvery, put } from 'redux-saga/effects'
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+// Provider allows us to use redux within our react app
 import { Provider } from 'react-redux';
+// import logger from 'redux-logger';
+// Import saga middleware
 import createSagaMiddleware from 'redux-saga';
-import logger from 'redux-logger';
-import rootReducer from './redux/reducers'; // imports ./redux/reducers/index.js
-import rootSaga from './redux/sagas'; // imports ./redux/sagas/index.js
 
+import axios from "axios";
+
+// Create the rootSaga generator function
+function* rootSaga() {
+    yield takeEvery('POST_PETS', postPets)
+}
+
+function* postPets(action) {
+    console.log('in postPets saga', action.payload);
+
+    try {
+        yield axios.get(`http://127.0.0.1:5000/owners`, action.payload)
+    }catch (error) {
+        console.log('Error in postPet saga', error);
+        
+    }
+    
+}
+
+
+
+
+
+// Create sagaMiddleware
 const sagaMiddleware = createSagaMiddleware();
 
-const middlewareList = process.env.NODE_ENV === 'development' ?
-    [sagaMiddleware, logger] :
-    [sagaMiddleware];
 
-const store = createStore(
-    // tells the saga middleware to use the rootReducer
-    // rootSaga contains all of our other reducers
-    rootReducer,
-    // adds all middleware to our project including saga and logger
-    applyMiddleware(...middlewareList),
+
+
+
+
+// Create one store that all components can use
+const storeInstance = createStore(
+    combineReducers({
+        postPets
+    }),
+    // Add sagaMiddleware to our store
+    applyMiddleware(sagaMiddleware),
 );
 
+// Pass rootSaga into our sagaMiddleware
 sagaMiddleware.run(rootSaga);
 
-ReactDOM.render(
-    <Provider store={store}>
-        <App />
-    </Provider>,
-    document.getElementById('root'),
-);
+ReactDOM.render(<Provider store={storeInstance}><App /></Provider>,
+    document.getElementById('root'));
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
