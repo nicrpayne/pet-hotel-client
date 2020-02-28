@@ -21,8 +21,8 @@ function* postPets(action) {
     console.log('in postPets saga', action.payload);
 
     try {
-        yield axios.get(`http://127.0.0.1:5000/owners`, action.payload)
-    }catch (error) {
+        yield axios.post(`/owners/${JSON.stringify(action.payload)}`)   //stringify the payload
+    } catch (error) {
         console.log('Error in postPet saga', error);
         
     }
