@@ -3,6 +3,13 @@ import { connect } from 'react-redux';
 
 class AddPetForm extends Component {
 
+componentDidMount(){
+    this.props.dispatch ({
+        type: 'GET_PETS'
+    })
+}
+
+
     state = {
         newPet: {
             name: '',
@@ -41,6 +48,7 @@ class AddPetForm extends Component {
             <div>
                 <form>
                     <h2>Add Pet </h2>
+                    {JSON.Stringify(this.props.reduxState.setPetsReducer)}
                     <input
                         placeholder='Pet Name'
                         value={this.state.newPet.name}
@@ -69,4 +77,10 @@ class AddPetForm extends Component {
 
 
 }
-export default connect()(AddPetForm)
+
+const mapStateToProps = reduxState => {
+    return {
+        reduxState: reduxState
+    }
+}
+export default connect(mapStateToProps)(AddPetForm)

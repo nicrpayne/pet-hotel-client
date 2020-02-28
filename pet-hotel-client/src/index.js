@@ -15,7 +15,12 @@ import axios from "axios";
 // Create the rootSaga generator function
 function* rootSaga() {
     yield takeEvery('POST_PETS', postPets)
+    yield takeEvery('GET_PETS', getPets)
 }
+
+// Create sagaMiddleware
+const sagaMiddleware = createSagaMiddleware();
+
 
 function* postPets(action) {
     console.log('in postPets saga', action.payload);
@@ -29,12 +34,29 @@ function* postPets(action) {
     
 }
 
+function* getPets() {
+    console.log('in getPets saga');
+    try{
+        let response = yield axios.get('/')
+        console.log(response.data);
+        
+        yield put({type: 'SET_PETS', payload: response.data.json()});
+    } catch (error) {
+        console.log('Error in getPets', error);
+        
+    }
+}
+
+const setPetsReducer = (state = [], action) => {
+    console.log('in setPetsReducer', action.payload);
+        if (action.type = 'SET_PETS') {
+            return action.payload;
+        }
+        return state;
+}
 
 
 
-
-// Create sagaMiddleware
-const sagaMiddleware = createSagaMiddleware();
 
 
 
@@ -44,7 +66,8 @@ const sagaMiddleware = createSagaMiddleware();
 // Create one store that all components can use
 const storeInstance = createStore(
     combineReducers({
-        postPets
+        
+        setPetsReducer
     }),
     // Add sagaMiddleware to our store
     applyMiddleware(sagaMiddleware),
@@ -55,4 +78,3 @@ sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(<Provider store={storeInstance}><App /></Provider>,
     document.getElementById('root'));
-
