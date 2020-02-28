@@ -39,6 +39,19 @@ def routestuff(jsdata):
         conn.commit()
         return 'Hello POST route'
 
+@app.route('/', methods=['GET'])
+def jjfunk():
+    print('in route')
+    print()
+    if request.method == 'GET':
+        query = 'SELECT * FROM "pets";'
+        cursor.execute(query)
+        results = cursor.fetchAll();
+
+        # print(cursor)
+        conn.commit();
+        return jsonify(results)
+
 
 
 
